@@ -2,11 +2,11 @@ from bs4 import BeautifulSoup
 import urllib.request
 
 
-def parser(url, class_, elem):
+def parser(url, cls, elem):
     page = urllib.request.urlopen(url)
     soup = BeautifulSoup(page, 'html.parser')
 
-    teams_content = soup.find_all(elem, class_=class_)
+    teams_content = soup.find_all(elem, class_=cls)
 
     teams = []
     for li in teams_content:
@@ -25,10 +25,3 @@ def parser(url, class_, elem):
                 teams.append(elem.strip())
 
     return teams
-
-
-# print(parser("https://sports.bwin.com/en/sports", 'js-mg-tooltip', 'a'))
-# print(parser("https://sports.williamhill.com/betting/en-gb/football",
-#              'btmarket__link-name btmarket__link-name--ellipsis show-for-desktop-medium', 'div'))
-# print(parser("https://www.freesupertips.com/", 'PreviewListItem__team-name', 'span'))
-# print(parser("https://betandyou1.com/line/Football/", 'c-events__team', 'span'))
