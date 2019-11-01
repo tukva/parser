@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import urllib.request
 
 
-def parser(url, cls, elem):
+def team_parser(url, cls, elem):
     page = urllib.request.urlopen(url)
     soup = BeautifulSoup(page, 'html.parser')
 
@@ -23,5 +23,4 @@ def parser(url, cls, elem):
                 teams.extend(elem)
             else:
                 teams.append(elem.strip())
-
     return teams
