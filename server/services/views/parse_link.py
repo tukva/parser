@@ -7,6 +7,7 @@ from sqlalchemy import and_
 from engine import Connection
 from models import tb_link, tb_team
 from services.parsers import team_parser
+from services.forms import TeamResponseSchema
 
 
 class ParserLinkView(HTTPMethodView):
@@ -15,13 +16,8 @@ class ParserLinkView(HTTPMethodView):
         if name == 'teams':
             async with Connection() as conn:
                 teams = await conn.execute(tb_team.select().where(tb_team.c.link_id == link_id))
-                res = []
-                async for team in teams:
-                    res.append({"team_id": team.team_id, "name": team.name,
-                                "created_on": team.created_on.strftime("%m/%d/%Y, %H:%M:%S"),
-                                "site_name": team.site_name, "real_team_id": team.real_team_id,
-                                "link_id": team.link_id})
-                return json(res)
+                res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
+                return json(res, 200)
 
     async def put(self, request, link_id, name):
         if name == 'teams':
@@ -62,10 +58,5 @@ class ParserAllLinksView(HTTPMethodView):
         if name == 'teams':
             async with Connection() as conn:
                 teams = await conn.execute(tb_team.select())
-                res = []
-                async for team in teams:
-                    res.append({"team_id": team.team_id, "name": team.name,
-                                "created_on": team.created_on.strftime("%m/%d/%Y, %H:%M:%S"),
-                                "site_name": team.site_name, "real_team_id": team.real_team_id,
-                                "link_id": team.link_id})
+                res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
                 return json(res, 200)
