@@ -1,8 +1,11 @@
 from datetime import datetime
 
+import psycopg2
 from sanic.views import HTTPMethodView
 from sanic.response import text, json
+from sanic.exceptions import abort
 from sqlalchemy import and_
+from marshmallow.exceptions import ValidationError
 
 from engine import Connection
 from models import tb_link, tb_team, tb_real_team
@@ -13,10 +16,13 @@ from services.forms import TeamResponseSchema
 class ParserLinkView(HTTPMethodView):
 
     async def get(self, request, link_id):
-        async with Connection() as conn:
-            teams = await conn.execute(tb_team.select().where(tb_team.c.link_id == link_id))
-            res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
-            return json(res, 200)
+        try:
+            async with Connection() as conn:
+                teams = await conn.execute(tb_team.select().where(tb_team.c.link_id == link_id))
+                res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
+                return json(res, 200)
+        except (ValidationError, psycopg2.DataError) as e:
+            abort(400, message=e)
 
     async def put(self, request, link_id):
         async with Connection() as conn:
@@ -52,19 +58,25 @@ class ParserLinkView(HTTPMethodView):
 class ParserAllLinksView(HTTPMethodView):
 
     async def get(self, request):
-        async with Connection() as conn:
-            teams = await conn.execute(tb_team.select())
-            res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
-            return json(res, 200)
+        try:
+            async with Connection() as conn:
+                teams = await conn.execute(tb_team.select())
+                res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
+                return json(res, 200)
+        except (ValidationError, psycopg2.DataError) as e:
+            abort(400, message=e)
 
 
 class RealTeamView(HTTPMethodView):
 
     async def get(self, request):
-        async with Connection() as conn:
-            teams = await conn.execute(tb_real_team.select())
-            res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
-            return json(res, 200)
+        try:
+            async with Connection() as conn:
+                teams = await conn.execute(tb_real_team.select())
+                res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
+                return json(res, 200)
+        except (ValidationError, psycopg2.DataError) as e:
+            abort(400, message=e)
 
     async def put(self, request):
         async with Connection() as conn:
