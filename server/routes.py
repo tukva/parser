@@ -1,5 +1,5 @@
 from listeners import acquire_con, close_con
-from services.views.parse_link import ParserLinkView, ParserAllLinksView
+from services.views.parse_link import ParserLinkView, ParserAllLinksView, RealTeamView
 
 
 def add_routes(app):
@@ -8,3 +8,5 @@ def add_routes(app):
 
     app.add_route(ParserAllLinksView.as_view(), '/parse-links/<name>')
     app.add_route(ParserLinkView.as_view(), '/parse-links/<link_id:int>/<name>')
+
+    app.add_route(RealTeamView.as_view(), '/real-team')

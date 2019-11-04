@@ -5,7 +5,7 @@ from sanic.response import text, json
 from sqlalchemy import and_
 
 from engine import Connection
-from models import tb_link, tb_team
+from models import tb_link, tb_team, tb_real_team
 from services.parsers import team_parser
 from services.forms import TeamResponseSchema
 
@@ -60,3 +60,35 @@ class ParserAllLinksView(HTTPMethodView):
                 teams = await conn.execute(tb_team.select())
                 res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
                 return json(res, 200)
+
+
+class RealTeamView(HTTPMethodView):
+
+    async def get(self, request):
+        async with Connection() as conn:
+            teams = await conn.execute(tb_real_team.select())
+            res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
+            return json(res, 200)
+
+    async def put(self, request):
+        async with Connection() as conn:
+            select_tb_link = await conn.execute(tb_link.select().where(tb_link.c.site_name == 'UEFA'))
+            link = await select_tb_link.fetchone()
+
+            teams = team_parser(link.link, link.attributes["cls"], link.attributes["elem"])
+            print(teams)
+            for team in teams:
+                select_tb_team = await conn.execute(tb_real_team.select().where(
+                    tb_real_team.c.name == team
+                ))
+                exist_record = await select_tb_team.fetchone()
+
+                if exist_record:
+                    await conn.execute(tb_real_team.update().where(tb_real_team.c.name == team).values(
+                        name=team, created_on=datetime.utcnow())
+                    )
+                else:
+                    await conn.execute(tb_real_team.insert().values(
+                        name=team, created_on=datetime.utcnow())
+                    )
+            return text("Ok", 200)
