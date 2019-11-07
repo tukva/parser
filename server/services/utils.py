@@ -30,7 +30,8 @@ async def get_teams_by_link(conn, link_id):
 async def refresh_teams_by_link(conn, link_id):
     select_tb_link = await conn.execute(tb_link.select().where(tb_link.c.link_id == link_id))
     link = await select_tb_link.fetchone()
-
+    if not link:
+        return text("Not Found", 404)
     teams = team_parser(link.link, link.attributes["cls"], link.attributes["elem"])
     for team in teams:
         select_tb_team = await conn.execute(tb_team.select().where(and_(
@@ -49,6 +50,15 @@ async def refresh_teams_by_link(conn, link_id):
             await conn.execute(tb_team.insert().values(
                 name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link_id)
             )
+    return text("Ok", 200)
+
+
+async def delete_teams_by_link(conn, link_id):
+    select_tb_link = await conn.execute(tb_link.select().where(tb_link.c.link_id == link_id))
+    link = await select_tb_link.fetchone()
+    if not link:
+        return text("Not Found", 404)
+    await conn.execute(tb_team.delete().where(tb_team.c.link_id == link_id))
     return text("Ok", 200)
 
 
@@ -72,9 +82,4 @@ async def refresh_real_teams(conn):
             await conn.execute(tb_real_team.insert().values(
                 name=team, created_on=datetime.utcnow())
             )
-    return text("Ok", 200)
-
-
-async def delete_teams_by_link(conn, link_id):
-    await conn.execute(tb_team.delete().where(tb_team.c.link_id == link_id))
     return text("Ok", 200)
