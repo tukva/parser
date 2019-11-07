@@ -1,6 +1,7 @@
 ## Setup with docker
 
 1. Install `docker` and `docker-compose`
+1. Rename `default.env` file to `.env`
 1. Set environment variable in `.env` file
 1. Setup project via `make setup_project`
 1. Create migrations via `docker-compose run --rm liquibase update`
@@ -18,6 +19,13 @@ Run via `make run_psql`
 
 1. Add new sql script to server/sql  with semantic name like "001_create_user_table"
 1. Create change via `docker-compose run --rm liquibase update` 
+
+## Rollback a migration
+
+Rollback by count migrations via `docker-compose run --rm liquibase rollbackCount <count>`
+###### or
+
+Rollback by date migrations via `docker-compose run --rm liquibase rollbackToDate <yyyy-MM-dd'T'HH:mm:ss>`
 
 ## Run tests with docker
 

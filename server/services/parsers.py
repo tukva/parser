@@ -10,7 +10,7 @@ def team_parser(url, cls, elem):
 
     teams = []
     for li in teams_content:
-        elem = li.getText().replace("\n", "").replace("\t", "") \
+        elem = li.getText().strip().replace("\n", "").replace("\t", "") \
             .replace("\r", "").replace(u'\xa0', u'') \
             .replace("  ", " ").replace("Home (Goals) ", "").replace("Away (Goals) ", "").replace(
             "Away (Special bets) ", "").replace("Home (Special bets) ", "")
@@ -22,5 +22,5 @@ def team_parser(url, cls, elem):
                 elem = elem.split(" v ")
                 teams.extend(elem)
             else:
-                teams.append(elem.strip())
+                teams.append(elem)
     return teams
