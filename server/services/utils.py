@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from marshmallow.exceptions import ValidationError
 from sanic.response import text, json
 
 from models import tb_link, tb_team, tb_real_team
