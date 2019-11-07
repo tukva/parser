@@ -9,4 +9,4 @@ def add_routes(app):
     app.add_route(ParserAllLinksView.as_view(), '/parse-links/teams')
     app.add_route(ParserLinkView.as_view(), '/parse-links/<link_id:int>/teams')
 
-    app.add_route(RealTeamView.as_view(), '/real-team')
+    app.add_route(RealTeamView.as_view(), '/real-teams')

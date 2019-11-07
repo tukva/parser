@@ -10,21 +10,18 @@ from sqlalchemy import and_
 
 
 async def get_all_teams(conn, table_name):
-    try:
-        teams = await conn.execute(table_name.select())
-        res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
-        return json(res, 200)
-    except ValidationError as e:
-        return json(e, 400)
+    teams = await conn.execute(table_name.select())
+    res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
+    return json(res, 200)
 
 
 async def get_teams_by_link(conn, link_id):
-    try:
-        teams = await conn.execute(tb_team.select().where(tb_team.c.link_id == link_id))
-        res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
-        return json(res, 200)
-    except ValidationError as e:
-        return json(e, 400)
+    teams = await conn.execute(tb_team.select().where(tb_team.c.link_id == link_id))
+    result = await teams.fetchall()
+    if not result:
+        return text("Not Found", 404)
+    res = TeamResponseSchema().dump(result, many=True)
+    return json(res, 200)
 
 
 async def refresh_teams_by_link(conn, link_id):
