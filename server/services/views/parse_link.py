@@ -1,6 +1,6 @@
 from sanic.views import HTTPMethodView
 from engine import Connection
-from models import tb_team, tb_real_team
+from models import _Parser as Parser
 
 from services.utils import get_all_teams, get_teams_by_link, refresh_teams_by_link, \
     refresh_real_teams, delete_teams_by_link
@@ -25,14 +25,14 @@ class ParserAllLinksView(HTTPMethodView):
 
     async def get(self, request):
         async with Connection() as conn:
-            return await get_all_teams(conn, tb_team)
+            return await get_all_teams(conn, Parser.team)
 
 
 class RealTeamView(HTTPMethodView):
 
     async def get(self, request):
         async with Connection() as conn:
-            return await get_all_teams(conn, tb_real_team)
+            return await get_all_teams(conn, Parser.real_team)
 
     async def put(self, request):
         async with Connection() as conn:

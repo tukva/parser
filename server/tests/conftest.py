@@ -6,7 +6,7 @@ from sqlalchemy.schema import CreateTable, DropTable
 
 from routes import add_routes
 from engine import Connection, Engine
-from models import tb_team, tb_real_team, tb_link
+from models import _Parser as Parser
 
 
 def pytest_configure(config):
@@ -18,23 +18,23 @@ def pytest_configure(config):
 
 async def drop_tables():
     async with Connection() as conn:
-        await conn.execute(DropTable(tb_team))
-        await conn.execute(DropTable(tb_real_team))
-        await conn.execute(DropTable(tb_link))
+        await conn.execute(DropTable(Parser.team))
+        await conn.execute(DropTable(Parser.real_team))
+        await conn.execute(DropTable(Parser.link))
 
 
 async def create_tables():
     async with Connection() as conn:
-        await conn.execute(CreateTable(tb_link))
-        await conn.execute(CreateTable(tb_real_team))
-        await conn.execute(CreateTable(tb_team))
+        await conn.execute(CreateTable(Parser.link))
+        await conn.execute(CreateTable(Parser.real_team))
+        await conn.execute(CreateTable(Parser.team))
 
-        await conn.execute(tb_link.insert().values(site_name="bwin",
+        await conn.execute(Parser.link.insert().values(site_name="bwin",
                                                    link="https://sports.bwin.com/en/sports",
                                                    created_on=datetime.utcnow(),
                                                    attributes={"elem": "a", "cls": "js-mg-tooltip"}))
 
-        await conn.execute(tb_link.insert().values(site_name="UEFA",
+        await conn.execute(Parser.link.insert().values(site_name="UEFA",
                                                    link="https://en.competitions.uefa.com/"
                                                         "memberassociations/uefarankings/club/libraries//years/2020/",
                                                    created_on=datetime.utcnow(),
@@ -60,14 +60,14 @@ async def tables(test_cli):
 @pytest.fixture
 async def add_team(tables):
     async with Connection() as conn:
-        await conn.execute(tb_team.insert().values(name="Chelsea", created_on='2019-11-07T14:13:44.041152',
+        await conn.execute(Parser.team.insert().values(name="Chelsea", created_on='2019-11-07T14:13:44.041152',
                                                    site_name="bwin", link_id=1))
 
 
 @pytest.fixture
 async def add_real_team(tables):
     async with Connection() as conn:
-        await conn.execute(tb_real_team.insert().values(name="Chelsea", created_on='2019-11-07T14:13:44.041152'))
+        await conn.execute(Parser.real_team.insert().values(name="Chelsea", created_on='2019-11-07T14:13:44.041152'))
 
 
 @pytest.fixture
