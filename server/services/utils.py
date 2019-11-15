@@ -26,7 +26,7 @@ async def get_teams_by_link(conn, link_id):
 async def refresh_teams_by_link(conn, link_id):
     select_tb_link = await conn.execute(Parser.link.select().where(Parser.link.c.link_id == link_id))
     link = await select_tb_link.fetchone()
-    if not link:
+    if not link or link.site_name == "UEFA":
         return text("Not Found", 404)
     teams = team_parser(link.link, link.attributes["cls"], link.attributes["elem"])
     for team in teams:
