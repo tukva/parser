@@ -1,6 +1,8 @@
+import logging
 from datetime import datetime
 
 from sanic.response import json
+from psycopg2 import DatabaseError
 
 from models import _Parser as Parser
 from services.forms import TeamResponseSchema
@@ -79,3 +81,17 @@ async def refresh_real_teams(conn):
                 name=team, created_on=datetime.utcnow())
             )
     return json("Ok", 200)
+
+
+async def set_real_team(conn, team_id, real_team_id):
+    try:
+        result = await conn.execute(Parser.team.update().values(real_team_id=real_team_id).where(
+            Parser.team.c.team_id == team_id))
+
+    except DatabaseError as e:
+        logging.error(f"DB Update error: {e}", exc_info=True)
+        return json("Not found", 404)
+
+    if not result.rowcount:
+        return json("Bad request", 400)
+    return json("Ok", 204)
