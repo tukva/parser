@@ -30,15 +30,17 @@ async def create_tables():
         await conn.execute(CreateTable(Parser.team))
 
         await conn.execute(Parser.link.insert().values(site_name="bwin",
-                                                   link="https://sports.bwin.com/en/sports",
-                                                   created_on=datetime.utcnow(),
-                                                   attributes={"elem": "a", "cls": "js-mg-tooltip"}))
+                                                       link="https://sports.bwin.com/en/sports",
+                                                       created_on=datetime.utcnow(),
+                                                       attributes={"elem": "a", "cls": "js-mg-tooltip"}))
 
         await conn.execute(Parser.link.insert().values(site_name="UEFA",
-                                                   link="https://en.competitions.uefa.com/"
-                                                        "memberassociations/uefarankings/club/libraries//years/2020/",
-                                                   created_on=datetime.utcnow(),
-                                                   attributes={"elem": "a", "cls": "team-name visible-md visible-lg"}))
+                                                       link="https://en.competitions.uefa.com/"
+                                                            "memberassociations/uefarankings/club"
+                                                            "/libraries//years/2020/",
+                                                       created_on=datetime.utcnow(),
+                                                       attributes={"elem": "a",
+                                                                   "cls": "team-name visible-md visible-lg"}))
 
 
 @pytest.fixture
@@ -61,7 +63,7 @@ async def tables(test_cli):
 async def add_team(tables):
     async with Connection() as conn:
         await conn.execute(Parser.team.insert().values(name="Chelsea", created_on='2019-11-07T14:13:44.041152',
-                                                   site_name="bwin", link_id=1))
+                                                       site_name="bwin", link_id=1))
 
 
 @pytest.fixture
