@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sanic.response import text, json
+from sanic.response import json
 
 from models import _Parser as Parser
 from services.forms import TeamResponseSchema
@@ -18,7 +18,7 @@ async def get_teams_by_link(conn, link_id):
     teams = await conn.execute(Parser.team.select().where(Parser.team.c.link_id == link_id))
     result = await teams.fetchall()
     if not result:
-        return text("Not Found", 404)
+        return json("Not Found", 404)
     res = TeamResponseSchema().dump(result, many=True)
     return json(res, 200)
 
@@ -27,7 +27,7 @@ async def refresh_teams_by_link(conn, link_id):
     select_tb_link = await conn.execute(Parser.link.select().where(Parser.link.c.link_id == link_id))
     link = await select_tb_link.fetchone()
     if not link or link.site_name == "UEFA":
-        return text("Not Found", 404)
+        return json("Not Found", 404)
     teams = team_parser(link.link, link.attributes["cls"], link.attributes["elem"])
     for team in teams:
         select_tb_team = await conn.execute(Parser.team.select().where(and_(
@@ -46,16 +46,16 @@ async def refresh_teams_by_link(conn, link_id):
             await conn.execute(Parser.team.insert().values(
                 name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link_id)
             )
-    return text("Ok", 200)
+    return json("Ok", 200)
 
 
 async def delete_teams_by_link(conn, link_id):
     select_tb_link = await conn.execute(Parser.link.select().where(Parser.link.c.link_id == link_id))
     link = await select_tb_link.fetchone()
     if not link:
-        return text("Not Found", 404)
+        return json("Not Found", 404)
     await conn.execute(Parser.team.delete().where(Parser.team.c.link_id == link_id))
-    return text("Ok", 200)
+    return json("Ok", 200)
 
 
 async def refresh_real_teams(conn):
@@ -78,4 +78,4 @@ async def refresh_real_teams(conn):
             await conn.execute(Parser.real_team.insert().values(
                 name=team, created_on=datetime.utcnow())
             )
-    return text("Ok", 200)
+    return json("Ok", 200)

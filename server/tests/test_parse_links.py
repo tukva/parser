@@ -27,7 +27,7 @@ async def test_get_teams_by_link(test_cli, add_team):
     resp = await test_cli.get('/parse-links/3/teams')
 
     assert resp.status == 404
-    assert await resp.text() == "Not Found"
+    assert await resp.json() == "Not Found"
 
 
 @pytest.mark.parse_links
@@ -36,12 +36,12 @@ async def test_refresh_teams_by_link(test_cli, tables):
     resp = await test_cli.put('/parse-links/1/teams')
 
     assert resp.status == 200
-    assert await resp.text() == "Ok"
+    assert await resp.json() == "Ok"
 
     resp = await test_cli.put('/parse-links/3/teams')
 
     assert resp.status == 404
-    assert await resp.text() == "Not Found"
+    assert await resp.json() == "Not Found"
 
 
 @pytest.mark.parse_links
@@ -50,9 +50,9 @@ async def test_delete_teams_by_link(test_cli, add_team):
     resp = await test_cli.put('/parse-links/1/teams')
 
     assert resp.status == 200
-    assert await resp.text() == "Ok"
+    assert await resp.json() == "Ok"
 
     resp = await test_cli.put('/parse-links/3/teams')
 
     assert resp.status == 404
-    assert await resp.text() == "Not Found"
+    assert await resp.json() == "Not Found"
