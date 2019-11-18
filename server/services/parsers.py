@@ -1,3 +1,4 @@
+import re
 from bs4 import BeautifulSoup
 import urllib.request
 
@@ -10,17 +11,13 @@ def team_parser(url, cls, elem):
 
     teams = []
     for li in teams_content:
-        elem = li.getText().strip().replace("\n", "").replace("\t", "") \
-            .replace("\r", "").replace(u'\xa0', u'') \
-            .replace("  ", " ").replace("Home (Goals) ", "").replace("Away (Goals) ", "").replace(
-            "Away (Special bets) ", "").replace("Home (Special bets) ", "")
-        if elem != '':
-            if " - " in elem:
-                elem = elem.split(" - ")
-                teams.extend(elem)
-            elif " v " in elem:
-                elem = elem.split(" v ")
-                teams.extend(elem)
-            else:
-                teams.append(elem)
+        elem = li.getText().strip()
+        elem = re.sub('[\t\n\r\xa0]', '',  elem)
+
+        if 'Goals' in elem:
+            continue
+
+        elem = re.split(' [v-] ', elem)
+        teams.extend(elem)
+
     return teams
