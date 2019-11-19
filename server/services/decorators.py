@@ -15,10 +15,10 @@ def mapp_func():
     def decorator(f):
         @wraps(f)
         async def decorated_function(request, *args, **kwargs):
-            parse_by_field = request.json.get("parse_by") if request.json else None
+            parse_by_field = request.args.get("parse_by")
 
             if not parse_by_field:
-                return json({"Bad request"}, 400)
+                return json({"Type the parse_by parameter if you want to parse something"}, 200)
 
             parser_by = None
             for field in VALID_PARSER_BY_FIELDS:

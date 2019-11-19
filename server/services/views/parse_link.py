@@ -2,7 +2,7 @@ from sanic.views import HTTPMethodView
 from engine import Connection
 
 from services.decorators import mapp_func
-from services.utils import ParserRealTeams, ParserAllTeams
+from services.utils import ParserRealTeams
 
 
 class ParserLinkView(HTTPMethodView):
