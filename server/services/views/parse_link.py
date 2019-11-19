@@ -34,7 +34,7 @@ class RealTeamView(HTTPMethodView):
 
     async def get(self, request):
         async with Connection() as conn:
-            return await ParserAllTeams.get(conn, Parser.real_team)
+            return await ParserRealTeams.get(conn, Parser.real_team)
 
     async def put(self, request):
         async with Connection() as conn:
