@@ -34,7 +34,7 @@ class ParserByAllLinks(ABC):
 
     @staticmethod
     @abstractmethod
-    async def get(conn, table_name):
+    async def get(conn):
         pass
 
     @staticmethod
@@ -99,13 +99,19 @@ class ParserTeamsByLink(ParserByLink):
 class ParserAllTeams(ParserByAllLinks):
 
     @staticmethod
-    async def get(conn, table_name):
-        teams = await conn.execute(table_name.select())
+    async def get(conn):
+        teams = await conn.execute(Parser.team.select())
         res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
         return json(res, 200)
 
 
-class ParserRealTeams(ParserAllTeams):
+class ParserRealTeams(ParserByAllLinks):
+
+    @staticmethod
+    async def get(conn):
+        teams = await conn.execute(Parser.real_team.select())
+        res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
+        return json(res, 200)
 
     @staticmethod
     async def put(conn):
