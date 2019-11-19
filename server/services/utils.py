@@ -53,7 +53,6 @@ class ParserTeamsByLink(ParserByLink):
         teams = await conn.execute(Parser.team.select().where(Parser.team.c.link_id == link_id))
         result = await teams.fetchall()
         if not result:
-            logger.error("link_id not found in database")
             return json("Not Found", 404)
         res = TeamResponseSchema().dump(result, many=True)
         return json(res, 200)
@@ -63,7 +62,6 @@ class ParserTeamsByLink(ParserByLink):
         select_tb_link = await conn.execute(Parser.link.select().where(Parser.link.c.link_id == link_id))
         link = await select_tb_link.fetchone()
         if not link or link.site_name == "UEFA":
-            logger.error("link_id not found in database" if not link else "can not refresh UEFA teams")
             return json("Not Found", 404)
         teams = team_parser(link.link, link.attributes["cls"], link.attributes["elem"])
         for team in teams:
@@ -90,7 +88,6 @@ class ParserTeamsByLink(ParserByLink):
         select_tb_link = await conn.execute(Parser.link.select().where(Parser.link.c.link_id == link_id))
         link = await select_tb_link.fetchone()
         if not link:
-            logger.error("link_id not found in database")
             return json("Not Found", 404)
         await conn.execute(Parser.team.delete().where(Parser.team.c.link_id == link_id))
         return json("Ok", 200)
@@ -146,7 +143,6 @@ async def set_real_team(conn, team_id, real_team_id):
         return json("Not found", 404)
 
     if not result.rowcount:
-        logger.error(f"DB Update error. Not found real_team_id in database")
         return json("Bad request", 400)
 
     return json("Ok", 204)
