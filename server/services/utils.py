@@ -1,6 +1,6 @@
-import logging
 from datetime import datetime
 
+from sanic.log import logger
 from sanic.response import json
 from psycopg2 import DatabaseError
 
@@ -30,7 +30,7 @@ class ParserByLink(ABC):
         pass
 
 
-class _Parser(ABC):
+class ParserByAllLinks(ABC):
 
     @staticmethod
     @abstractmethod
@@ -49,21 +49,21 @@ class _Parser(ABC):
 class ParserTeamsByLink(ParserByLink):
 
     @staticmethod
-    @abstractmethod
     async def get(conn, link_id):
         teams = await conn.execute(Parser.team.select().where(Parser.team.c.link_id == link_id))
         result = await teams.fetchall()
         if not result:
+            logger.error("link_id not found in database")
             return json("Not Found", 404)
         res = TeamResponseSchema().dump(result, many=True)
         return json(res, 200)
 
     @staticmethod
-    @abstractmethod
     async def put(conn, link_id):
         select_tb_link = await conn.execute(Parser.link.select().where(Parser.link.c.link_id == link_id))
         link = await select_tb_link.fetchone()
         if not link or link.site_name == "UEFA":
+            logger.error("link_id not found in database" if not link else "can not refresh UEFA teams")
             return json("Not Found", 404)
         teams = team_parser(link.link, link.attributes["cls"], link.attributes["elem"])
         for team in teams:
@@ -86,17 +86,17 @@ class ParserTeamsByLink(ParserByLink):
         return json("Ok", 200)
 
     @staticmethod
-    @abstractmethod
     async def delete(conn, link_id):
         select_tb_link = await conn.execute(Parser.link.select().where(Parser.link.c.link_id == link_id))
         link = await select_tb_link.fetchone()
         if not link:
+            logger.error("link_id not found in database")
             return json("Not Found", 404)
         await conn.execute(Parser.team.delete().where(Parser.team.c.link_id == link_id))
         return json("Ok", 200)
 
 
-class ParserAllTeams(_Parser):
+class ParserAllTeams(ParserByAllLinks):
 
     @staticmethod
     async def get(conn, table_name):
@@ -135,11 +135,12 @@ async def set_real_team(conn, team_id, real_team_id):
     try:
         result = await conn.execute(Parser.team.update().values(real_team_id=real_team_id).where(
             Parser.team.c.team_id == team_id))
-
     except DatabaseError as e:
-        logging.error(f"DB Update error: {e}", exc_info=True)
+        logger.error(f"DB Update error: {e}")
         return json("Not found", 404)
 
     if not result.rowcount:
+        logger.error(f"DB Update error. Not found real_team_id in database")
         return json("Bad request", 400)
+
     return json("Ok", 204)
