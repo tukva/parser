@@ -9,20 +9,23 @@ from services.forms import TeamResponseSchema
 from services.parsers import team_parser
 from sqlalchemy import and_
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class ParserByLink(ABC):
 
     @staticmethod
+    @abstractmethod
     async def get_by_link(conn, link_id):
         pass
 
     @staticmethod
+    @abstractmethod
     async def put_by_link(conn, link_id):
         pass
 
     @staticmethod
+    @abstractmethod
     async def delete_by_link(conn, link_id):
         pass
 
@@ -30,6 +33,7 @@ class ParserByLink(ABC):
 class _Parser(ABC):
 
     @staticmethod
+    @abstractmethod
     async def get_all(conn, table_name):
         pass
 
@@ -45,6 +49,7 @@ class _Parser(ABC):
 class ParserTeamsByLink(ParserByLink):
 
     @staticmethod
+    @abstractmethod
     async def get(conn, link_id):
         teams = await conn.execute(Parser.team.select().where(Parser.team.c.link_id == link_id))
         result = await teams.fetchall()
@@ -54,6 +59,7 @@ class ParserTeamsByLink(ParserByLink):
         return json(res, 200)
 
     @staticmethod
+    @abstractmethod
     async def put(conn, link_id):
         select_tb_link = await conn.execute(Parser.link.select().where(Parser.link.c.link_id == link_id))
         link = await select_tb_link.fetchone()
@@ -80,6 +86,7 @@ class ParserTeamsByLink(ParserByLink):
         return json("Ok", 200)
 
     @staticmethod
+    @abstractmethod
     async def delete(conn, link_id):
         select_tb_link = await conn.execute(Parser.link.select().where(Parser.link.c.link_id == link_id))
         link = await select_tb_link.fetchone()
@@ -92,7 +99,7 @@ class ParserTeamsByLink(ParserByLink):
 class ParserAllTeams(_Parser):
 
     @staticmethod
-    async def get(conn, table_name):
+    async def get_all(conn, table_name):
         teams = await conn.execute(table_name.select())
         res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
         return json(res, 200)
