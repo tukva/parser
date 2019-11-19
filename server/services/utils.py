@@ -16,17 +16,17 @@ class ParserByLink(ABC):
 
     @staticmethod
     @abstractmethod
-    async def get_by_link(conn, link_id):
+    async def get(conn, link_id):
         pass
 
     @staticmethod
     @abstractmethod
-    async def put_by_link(conn, link_id):
+    async def put(conn, link_id):
         pass
 
     @staticmethod
     @abstractmethod
-    async def delete_by_link(conn, link_id):
+    async def delete(conn, link_id):
         pass
 
 
@@ -34,15 +34,15 @@ class _Parser(ABC):
 
     @staticmethod
     @abstractmethod
-    async def get_all(conn, table_name):
+    async def get(conn, table_name):
         pass
 
     @staticmethod
-    async def put_all(conn):
+    async def put(conn):
         pass
 
     @staticmethod
-    async def delete_all(conn):
+    async def delete(conn):
         pass
 
 
@@ -99,7 +99,7 @@ class ParserTeamsByLink(ParserByLink):
 class ParserAllTeams(_Parser):
 
     @staticmethod
-    async def get_all(conn, table_name):
+    async def get(conn, table_name):
         teams = await conn.execute(table_name.select())
         res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
         return json(res, 200)
