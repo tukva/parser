@@ -101,6 +101,32 @@ class ParserAllTeams(ParserByAllLinks):
         res = TeamResponseSchema().dump(await teams.fetchall(), many=True)
         return json(res, 200)
 
+    @staticmethod
+    async def put(conn):
+        select_tb_link = await conn.execute(Parser.link.select())
+        all_links = await select_tb_link.fetchall()
+        for link in all_links:
+            if not link or link.site_name == "UEFA":
+                continue
+            teams = team_parser(link.link, link.attributes["cls"], link.attributes["elem"])
+            for team in teams:
+                select_tb_team = await conn.execute(Parser.team.select().where(and_(
+                    Parser.team.c.name == team,
+                    Parser.team.c.link_id == link.link_id
+                )))
+
+                if select_tb_team.rowcount:
+                    await conn.execute(Parser.team.update().where(and_(
+                        Parser.team.c.name == team, Parser.team.c.link_id == link.link_id)).values(
+                        name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link.link_id)
+                    )
+                    break
+                else:
+                    await conn.execute(Parser.team.insert().values(
+                        name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link.link_id)
+                    )
+        return json("Ok", 200)
+
 
 class ParserRealTeams(ParserByAllLinks):
 

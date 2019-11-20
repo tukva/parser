@@ -2,7 +2,6 @@ from sanic.views import HTTPMethodView
 from engine import Connection
 
 from services.decorators import mapp_func
-from services.utils import ParserRealTeams
 
 
 class ParserLinkView(HTTPMethodView):
@@ -28,13 +27,6 @@ class ParserAllLinksView(HTTPMethodView):
         async with Connection() as conn:
             return await cls.get(conn)
 
-
-class RealTeamView(HTTPMethodView):
-
-    async def get(self, request):
+    async def put(self, request, cls):
         async with Connection() as conn:
-            return await ParserRealTeams.get(conn)
-
-    async def put(self, request):
-        async with Connection() as conn:
-            return await ParserRealTeams.put(conn)
+            return await cls.put(conn)

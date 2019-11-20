@@ -3,12 +3,13 @@ from functools import wraps
 
 from sanic.response import json
 
-from services.utils import ParserTeamsByLink, ParserAllTeams
+from services.utils import ParserTeamsByLink, ParserAllTeams, ParserRealTeams
 
 Parse_by = namedtuple('Parse_by', ['name', 'cls_parse_by_link', 'cls_parse_by_all_links'])
 parser_teams = Parse_by("teams", ParserTeamsByLink, ParserAllTeams)
+parser_real_teams = Parse_by("real_teams", ParserRealTeams, ParserRealTeams)
 
-VALID_PARSER_BY_FIELDS = [parser_teams]
+VALID_PARSER_BY_FIELDS = [parser_teams, parser_real_teams]
 
 
 def mapp_func():
