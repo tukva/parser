@@ -167,5 +167,4 @@ async def set_real_team(conn, team_id, real_team_id):
 
     if not result.rowcount:
         return json("Bad request", 400)
-
     return json("Ok", 204)
