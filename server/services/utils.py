@@ -38,11 +38,8 @@ class ParserByAllLinks(ABC):
         pass
 
     @staticmethod
+    @abstractmethod
     async def put(conn):
-        pass
-
-    @staticmethod
-    async def delete(conn):
         pass
 
 
