@@ -7,7 +7,7 @@ from services.utils import ParserTeamsByLink, ParserAllTeams, ParserRealTeams
 
 Parse_by = namedtuple('Parse_by', ['name', 'cls_parse_by_link', 'cls_parse_by_all_links'])
 parser_teams = Parse_by("teams", ParserTeamsByLink, ParserAllTeams)
-parser_real_teams = Parse_by("real_teams", ParserRealTeams, ParserRealTeams)
+parser_real_teams = Parse_by("real_teams", None, ParserRealTeams)
 
 VALID_PARSER_BY_FIELDS = [parser_teams, parser_real_teams]
 
@@ -19,7 +19,7 @@ def mapp_func():
             parse_by_field = request.args.get("parse_by")
 
             if not parse_by_field:
-                return json({"Type the parse_by parameter if you want to parse something"}, 200)
+                return json("Type the parse_by parameter if you want to parse something", 200)
 
             parser_by = None
             for field in VALID_PARSER_BY_FIELDS:
@@ -27,14 +27,21 @@ def mapp_func():
                     parser_by = field
 
             if not parser_by:
-                return json({f"Can not parse by '{parse_by_field}'. "
-                             f"Valid values: {[field.name for field in VALID_PARSER_BY_FIELDS]}"}, 422)
+                return json(f"Can not parse by '{parse_by_field}'. "
+                             f"Valid values: {[field.name for field in VALID_PARSER_BY_FIELDS]}", 422)
 
             if kwargs.get("link_id"):
+                if not parser_by.cls_parse_by_link:
+                    return json("Can not parse by link", 422)
+
                 cls = parser_by.cls_parse_by_link
                 return await f(request=request, cls=cls, *args, **kwargs)
 
             cls = parser_by.cls_parse_by_all_links
+
+            if not parser_by.cls_parse_by_all_links:
+                return json("Can not parse by all links ", 422)
+
             return await f(request, cls, *args, **kwargs)
         return decorated_function
     return decorator
