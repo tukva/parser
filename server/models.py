@@ -1,5 +1,5 @@
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 class Parser:
     metadata = sa.MetaData()
@@ -40,7 +40,8 @@ class Parser:
             sa.Column('created_on', sa.DateTime(), nullable=False),
             sa.Column('site_name', sa.String(25), nullable=False),
             sa.Column('real_team_id', sa.Integer, sa.ForeignKey('tb_real_team.real_team_id')),
-            sa.Column('link_id', sa.Integer, sa.ForeignKey('tb_link.link_id')))
+            sa.Column('link_id', sa.Integer, sa.ForeignKey('tb_link.link_id')),
+            sa.Column('status', postgresql.ENUM('new', 'moderated', 'approved')))
 
         return tb_team
 

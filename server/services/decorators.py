@@ -28,7 +28,7 @@ def mapp_func():
 
             if not parser_by:
                 return json(f"Can not parse by '{parse_by_field}'. "
-                             f"Valid values: {[field.name for field in VALID_PARSER_BY_FIELDS]}", 422)
+                            f"Valid values: {[field.name for field in VALID_PARSER_BY_FIELDS]}", 422)
 
             if kwargs.get("link_id"):
                 if not parser_by.cls_parse_by_link:
@@ -37,10 +37,10 @@ def mapp_func():
                 cls = parser_by.cls_parse_by_link
                 return await f(request=request, cls=cls, *args, **kwargs)
 
-            cls = parser_by.cls_parse_by_all_links
-
             if not parser_by.cls_parse_by_all_links:
-                return json("Can not parse by all links ", 422)
+                return json("Can not parse by all links", 422)
+
+            cls = parser_by.cls_parse_by_all_links
 
             return await f(request, cls, *args, **kwargs)
         return decorated_function

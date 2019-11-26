@@ -66,17 +66,14 @@ class ParserTeamsByLink(ParserByLink):
                 Parser.team.c.name == team,
                 Parser.team.c.link_id == link_id
             )))
-            exist_record = await select_tb_team.fetchone()
 
-            if exist_record:
+            if select_tb_team.rowcount:
                 await conn.execute(Parser.team.update().where(and_(
-                    Parser.team.c.name == team, Parser.team.c.link_id == link_id)).values(
-                    name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link_id)
+                    Parser.team.c.name == team, Parser.team.c.link_id == link_id)).values(created_on=datetime.utcnow())
                 )
-                break
             else:
                 await conn.execute(Parser.team.insert().values(
-                    name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link_id)
+                    name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link_id, status="new")
                 )
         return json("Ok", 200)
 
@@ -115,12 +112,12 @@ class ParserAllTeams(ParserByAllLinks):
                 if select_tb_team.rowcount:
                     await conn.execute(Parser.team.update().where(and_(
                         Parser.team.c.name == team, Parser.team.c.link_id == link.link_id)).values(
-                        name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link.link_id)
+                        created_on=datetime.utcnow())
                     )
-                    break
                 else:
                     await conn.execute(Parser.team.insert().values(
-                        name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link.link_id)
+                        name=team, site_name=link.site_name, created_on=datetime.utcnow(),
+                        link_id=link.link_id, status="new")
                     )
         return json("Ok", 200)
 
@@ -144,11 +141,10 @@ class ParserRealTeams(ParserByAllLinks):
             select_tb_team = await conn.execute(Parser.real_team.select().where(
                 Parser.real_team.c.name == team
             ))
-            exist_record = await select_tb_team.fetchone()
 
-            if exist_record:
+            if select_tb_team.rowcount:
                 await conn.execute(Parser.real_team.update().where(Parser.real_team.c.name == team).values(
-                    name=team, created_on=datetime.utcnow())
+                    created_on=datetime.utcnow())
                 )
             else:
                 await conn.execute(Parser.real_team.insert().values(
