@@ -3,11 +3,12 @@ from datetime import datetime
 from sanic.log import logger
 from sanic.response import json
 from psycopg2 import DatabaseError
+from sqlalchemy import and_
 
 from models import _Parser as Parser
 from services.forms import TeamResponseSchema
 from services.parsers import team_parser
-from sqlalchemy import and_
+from services.camunda import CamundaAPI
 
 from abc import ABC, abstractmethod
 
@@ -73,7 +74,8 @@ class ParserTeamsByLink(ParserByLink):
                 )
             else:
                 await conn.execute(Parser.team.insert().values(
-                    name=team, site_name=link.site_name, created_on=datetime.utcnow(), link_id=link_id, status="new")
+                    name=team, site_name=link.site_name, created_on=datetime.utcnow(),
+                    link_id=link_id, status="new", process_instance_id=await CamundaAPI.init("BetAggr"))
                 )
         return json("Ok", 200)
 
@@ -117,7 +119,7 @@ class ParserAllTeams(ParserByAllLinks):
                 else:
                     await conn.execute(Parser.team.insert().values(
                         name=team, site_name=link.site_name, created_on=datetime.utcnow(),
-                        link_id=link.link_id, status="new")
+                        link_id=link.link_id, status="new", process_instance_id=await CamundaAPI.init("BetAggr"))
                     )
         return json("Ok", 200)
 

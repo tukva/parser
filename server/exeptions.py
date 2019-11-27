@@ -1,0 +1,2 @@
+class CamundaAPIException(Exception):
+    pass

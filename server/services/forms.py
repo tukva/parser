@@ -11,3 +11,4 @@ class TeamResponseSchema(Schema):
     status = fields.Str(
         validate=validate.OneOf(["new", "moderated", "approved"]), nullable=False
     )
+    process_instance_id = fields.Str(validate=validate.Length(max=40))
