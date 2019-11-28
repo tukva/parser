@@ -12,3 +12,8 @@ class TeamResponseSchema(Schema):
         validate=validate.OneOf(["new", "moderated", "approved"]), nullable=False
     )
     process_instance_id = fields.Str(validate=validate.Length(max=40))
+
+
+class ChangeStatusTeam(Schema):
+    real_team_id = fields.Int()
+    status = fields.Str(validate=validate.OneOf(["moderated", "approved"]), nullable=False)

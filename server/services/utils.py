@@ -155,14 +155,26 @@ class ParserRealTeams(ParserByAllLinks):
         return json("Ok", 200)
 
 
-async def set_real_team(conn, team_id, real_team_id, status):
+async def set_real_team(conn, team_id, data):
     try:
-        result = await conn.execute(Parser.team.update().values(real_team_id=real_team_id, status=status).where(
+        select_team = await conn.execute(Parser.team.select().where(
             Parser.team.c.team_id == team_id))
+
+        if not select_team.rowcount:
+            return json("Bad request", 400)
+
+        team = await select_team.fetchone()
+        if data["status"] == "moderated":
+            if team.status != "new":
+                return json("Current team status can not to moderate", 422)
+            await conn.execute(Parser.team.update().values(real_team_id=data["real_team_id"], status=data["status"]).where(
+                Parser.team.c.team_id == team_id))
+        else:
+            if team.status != "moderated":
+                return json("Current team status can not to approve", 422)
+            await conn.execute(Parser.team.update().values(status=data["status"]).where(
+                Parser.team.c.team_id == team_id))
     except DatabaseError as e:
         logger.error(f"DB Update error: {e}")
         return json("Not found", 404)
-
-    if not result.rowcount:
-        return json("Bad request", 400)
     return json("Ok", 204)
