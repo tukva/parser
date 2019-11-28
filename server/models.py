@@ -1,6 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
+
 class Parser:
     metadata = sa.MetaData()
 

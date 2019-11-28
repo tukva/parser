@@ -155,9 +155,9 @@ class ParserRealTeams(ParserByAllLinks):
         return json("Ok", 200)
 
 
-async def set_real_team(conn, team_id, real_team_id):
+async def set_real_team(conn, team_id, real_team_id, status):
     try:
-        result = await conn.execute(Parser.team.update().values(real_team_id=real_team_id).where(
+        result = await conn.execute(Parser.team.update().values(real_team_id=real_team_id, status=status).where(
             Parser.team.c.team_id == team_id))
     except DatabaseError as e:
         logger.error(f"DB Update error: {e}")
