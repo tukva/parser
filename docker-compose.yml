@@ -32,3 +32,8 @@ services:
             POSTGRES_DB: ${POSTGRES_DB}
         ports:
             - ${POSTGRES_PORT}:${POSTGRES_PORT}
+
+    camunda:
+        image: camunda-bpm-platform
+        ports:
+            - "8085:8000"

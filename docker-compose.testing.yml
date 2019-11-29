@@ -5,7 +5,7 @@ services:
           - .env
         build: server
         ports:
-            - 8080:8080
+            - "8000:8000"
         command: pytest
         depends_on:
             - test_database
@@ -25,3 +25,8 @@ services:
             POSTGRES_DB: ${POSTGRES_DB}
         ports:
             - ${POSTGRES_PORT}:${POSTGRES_PORT}
+
+    camunda:
+        image: camunda-bpm-platform
+        ports:
+          - "8085:8000"

@@ -161,7 +161,7 @@ async def set_real_team(conn, team_id, data):
             Parser.team.c.team_id == team_id))
 
         if not select_team.rowcount:
-            return json("Bad request", 400)
+            return json("Not Found", 404)
 
         team = await select_team.fetchone()
         if data["status"] == "moderated":
@@ -176,5 +176,5 @@ async def set_real_team(conn, team_id, data):
                 Parser.team.c.team_id == team_id))
     except DatabaseError as e:
         logger.error(f"DB Update error: {e}")
-        return json("Not found", 404)
+        return json("Bad request", 400)
     return json("Ok", 204)

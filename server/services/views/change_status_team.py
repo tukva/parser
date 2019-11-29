@@ -12,6 +12,6 @@ async def change_status_team(request, team_id):
     try:
         data = ChangeStatusTeam().load(request.json)
     except ValidationError as e:
-        return json(e.messages["status"], 422)
+        return json(e.messages, 422)
     async with Connection() as conn:
         return await set_real_team(conn, team_id, data)

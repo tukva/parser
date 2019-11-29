@@ -7,7 +7,6 @@ client_camunda = BaseClientCamunda()
 
 class CamundaAPI:
     workflow_steps = {
-        "Request": "action",
         "New": "action",
         "Moderated": "action",
         "Approved": "approved",

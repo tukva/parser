@@ -12,8 +12,9 @@ from models import _Parser as Parser
 def pytest_configure(config):
     config.addinivalue_line("markers", "smoke: smoke tests")
     config.addinivalue_line("markers", "parser: parser tests")
-    config.addinivalue_line("markers", "real_teams: real_teams tests")
-    config.addinivalue_line("markers", "parse_links: parse_links tests")
+    config.addinivalue_line("markers", "real_teams: real teams tests")
+    config.addinivalue_line("markers", "parse_links: parse links tests")
+    config.addinivalue_line("markers", "change_status_team: change status team tests")
 
 
 async def drop_tables():
@@ -21,10 +22,12 @@ async def drop_tables():
         await conn.execute(DropTable(Parser.team))
         await conn.execute(DropTable(Parser.real_team))
         await conn.execute(DropTable(Parser.link))
+        await conn.execute("DROP TYPE status_team;")
 
 
 async def create_tables():
     async with Connection() as conn:
+        await conn.execute("CREATE TYPE status_team AS ENUM ('new', 'moderated', 'approved');")
         await conn.execute(CreateTable(Parser.link))
         await conn.execute(CreateTable(Parser.real_team))
         await conn.execute(CreateTable(Parser.team))
@@ -63,7 +66,14 @@ async def tables(test_cli):
 async def add_team(tables):
     async with Connection() as conn:
         await conn.execute(Parser.team.insert().values(name="Chelsea", created_on='2019-11-07T14:13:44.041152',
-                                                       site_name="bwin", link_id=1))
+                                                       site_name="bwin", link_id=1, status="new"))
+
+
+@pytest.fixture
+async def add_team_with_moderated_status(tables):
+    async with Connection() as conn:
+        await conn.execute(Parser.team.insert().values(name="Chelsea", created_on='2019-11-07T14:13:44.041152',
+                                                       site_name="bwin", link_id=1, status="moderated"))
 
 
 @pytest.fixture
