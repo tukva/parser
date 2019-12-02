@@ -1,8 +1,10 @@
 import pytest
+from unittest import mock
 
+from services.camunda import CamundaAPI
 
 @pytest.mark.change_status_team
-async def test_change_status_team_in_moderated(test_cli, add_team, add_real_team):
+async def test_change_status_team_in_moderated(test_cli, mock_resp, add_team, add_real_team):
     resp = await test_cli.patch('/change-status-team/1', json={"real_team_id": 1, "status": "approved"})
 
     assert resp.status == 422
@@ -25,16 +27,17 @@ async def test_change_status_team_in_moderated(test_cli, add_team, add_real_team
 
     resp = await test_cli.patch('/change-status-team/1')
 
-    assert resp.status == 400
-    assert await resp.json() == "Bad request"
+    assert resp.status == 422
+    assert await resp.json() == {'_schema': ['Invalid input type.']}
 
-    resp = await test_cli.patch('/change-status-team/1', json={"real_team_id": 1, "status": "moderated"})
+    with mock.patch.object(CamundaAPI, 'task_complete', return_value=mock_resp):
+        resp = await test_cli.patch('/change-status-team/1', json={"real_team_id": 1, "status": "moderated"})
 
-    assert resp.status == 204
+        assert resp.status == 200
 
 
 @pytest.mark.change_status_team
-async def test_change_status_team_in_approved(test_cli, add_team_with_moderated_status, add_real_team):
+async def test_change_status_team_in_approved(test_cli, mock_resp, add_team_with_moderated_status, add_real_team):
     resp = await test_cli.patch('/change-status-team/1', json={"real_team_id": 1, "status": "moderated"})
 
     assert resp.status == 422
@@ -47,9 +50,10 @@ async def test_change_status_team_in_approved(test_cli, add_team_with_moderated_
 
     resp = await test_cli.patch('/change-status-team/1')
 
-    assert resp.status == 400
-    assert await resp.json() == "Bad request"
+    assert resp.status == 422
+    assert await resp.json() == {'_schema': ['Invalid input type.']}
 
-    resp = await test_cli.patch('/change-status-team/1', json={"real_team_id": 1, "status": "approved"})
+    with mock.patch.object(CamundaAPI, 'task_complete', return_value=mock_resp):
+        resp = await test_cli.patch('/change-status-team/1', json={"real_team_id": 1, "status": "approved"})
 
-    assert resp.status == 204
+        assert resp.status == 200

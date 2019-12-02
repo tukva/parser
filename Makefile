@@ -3,6 +3,7 @@ export
 
 setup_project:
 		docker-compose up -d database
+		docker-compose up -d camunda
 		curl -w "\n" \
             -H "Accept: application/json" \
             -F "deployment-name=BetAggr" \

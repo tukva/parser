@@ -1,4 +1,5 @@
 from datetime import datetime
+import asyncio
 
 import pytest
 from sanic import Sanic
@@ -89,3 +90,9 @@ async def connection():
     yield
 
     await Engine.close()
+
+@pytest.fixture
+async def mock_resp(test_cli):
+    future = asyncio.Future()
+    future.set_result(None)
+    return future
