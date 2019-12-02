@@ -9,6 +9,7 @@ from models import _Parser as Parser
 from services.forms import TeamResponseSchema
 from services.parsers import team_parser
 from services.camunda import CamundaAPI
+from exeptions import CamundaAPIException
 
 from abc import ABC, abstractmethod
 
@@ -73,10 +74,13 @@ class ParserTeamsByLink(ParserByLink):
                     Parser.team.c.name == team, Parser.team.c.link_id == link_id)).values(created_on=datetime.utcnow())
                 )
             else:
-                await conn.execute(Parser.team.insert().values(
-                    name=team, site_name=link.site_name, created_on=datetime.utcnow(),
-                    link_id=link_id, status="new", process_instance_id=await CamundaAPI.init("BetAggr"))
-                )
+                try:
+                    await conn.execute(Parser.team.insert().values(
+                        name=team, site_name=link.site_name, created_on=datetime.utcnow(),
+                        link_id=link_id, status="new", process_instance_id=await CamundaAPI.init("BetAggr"))
+                    )
+                except CamundaAPIException as e:
+                    return json(e, 422)
         return json("Ok", 200)
 
     @staticmethod
@@ -117,10 +121,13 @@ class ParserAllTeams(ParserByAllLinks):
                         created_on=datetime.utcnow())
                     )
                 else:
-                    await conn.execute(Parser.team.insert().values(
-                        name=team, site_name=link.site_name, created_on=datetime.utcnow(),
-                        link_id=link.link_id, status="new", process_instance_id=await CamundaAPI.init("BetAggr"))
-                    )
+                    try:
+                        await conn.execute(Parser.team.insert().values(
+                            name=team, site_name=link.site_name, created_on=datetime.utcnow(),
+                            link_id=link.link_id, status="new", process_instance_id=await CamundaAPI.init("BetAggr"))
+                        )
+                    except CamundaAPIException as e:
+                        return json(e, 422)
         return json("Ok", 200)
 
 
@@ -167,11 +174,20 @@ async def set_real_team(conn, team_id, data):
         if data["status"] == "moderated":
             if team.status != "new":
                 return json("Current team status can not to moderate", 422)
-            await conn.execute(Parser.team.update().values(real_team_id=data["real_team_id"], status=data["status"]).where(
+            try:
+                await CamundaAPI.task_complete(team.process_instance_id, "New", True)
+            except CamundaAPIException as e:
+                return json(e, 422)
+            await conn.execute(Parser.team.update().values(
+                real_team_id=data["real_team_id"], status=data["status"]).where(
                 Parser.team.c.team_id == team_id))
         else:
             if team.status != "moderated":
                 return json("Current team status can not to approve", 422)
+            try:
+                await CamundaAPI.task_complete(team.process_instance_id, "Moderated", True)
+            except CamundaAPIException as e:
+                return json(e, 422)
             await conn.execute(Parser.team.update().values(status=data["status"]).where(
                 Parser.team.c.team_id == team_id))
     except DatabaseError as e:

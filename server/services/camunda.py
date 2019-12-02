@@ -38,7 +38,7 @@ class CamundaAPI:
     async def _get_current_task(cls, process_instance_id):
         resp = await client_camunda.get_current_task(process_instance_id)
         task = resp.json
-        return task[0]
+        return task[0] if task else None
 
     @classmethod
     async def task_complete(cls, process_instance_id, name, value):

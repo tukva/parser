@@ -7,8 +7,6 @@ from services.forms import ChangeStatusTeam
 
 
 async def change_status_team(request, team_id):
-    if not request.json:
-        return json("Bad request", 400)
     try:
         data = ChangeStatusTeam().load(request.json)
     except ValidationError as e:
