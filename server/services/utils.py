@@ -163,34 +163,34 @@ class ParserRealTeams(ParserByAllLinks):
 
 
 async def set_real_team(conn, team_id, data):
-    try:
-        select_team = await conn.execute(Parser.team.select().where(
-            Parser.team.c.team_id == team_id))
+    select_team = await conn.execute(Parser.team.select().where(
+        Parser.team.c.team_id == team_id))
 
-        if not select_team.rowcount:
-            return json("Not Found", 404)
+    if not select_team.rowcount:
+        return json("Not Found", 404)
 
-        team = await select_team.fetchone()
-        if data["status"] == "moderated":
-            if team.status != "new":
-                return json("Current team status can not to moderate", 422)
-            try:
-                await CamundaAPI.task_complete(team.process_instance_id, "New", True)
-            except CamundaAPIException as e:
-                return json(e, 422)
+    team = await select_team.fetchone()
+    if data["status"] == "moderated":
+        if team.status != "new":
+            return json("Current team status can not to moderate", 422)
+        try:
+            await CamundaAPI.task_complete(team.process_instance_id, "New", True)
+        except CamundaAPIException as e:
+            return json(e, 422)
+        try:
             await conn.execute(Parser.team.update().values(
                 real_team_id=data["real_team_id"], status=data["status"]).where(
                 Parser.team.c.team_id == team_id))
-        else:
-            if team.status != "moderated":
-                return json("Current team status can not to approve", 422)
-            try:
-                await CamundaAPI.task_complete(team.process_instance_id, "Moderated", True)
-            except CamundaAPIException as e:
-                return json(e, 422)
-            await conn.execute(Parser.team.update().values(status=data["status"]).where(
-                Parser.team.c.team_id == team_id))
-    except DatabaseError as e:
-        logger.error(f"DB Update error: {e}")
-        return json("Bad request", 400)
-    return json("Ok", 204)
+        except DatabaseError as e:
+            logger.error(f"DB Update error: {e}")
+            return json("Bad request", 400)
+    else:
+        if team.status != "moderated":
+            return json("Current team status can not to approve", 422)
+        try:
+            await CamundaAPI.task_complete(team.process_instance_id, "Moderated", True)
+        except CamundaAPIException as e:
+            return json(e, 422)
+        await conn.execute(Parser.team.update().values(status=data["status"]).where(
+            Parser.team.c.team_id == team_id))
+    return json("Ok", 200)
