@@ -3,6 +3,7 @@ from unittest import mock
 
 from services.camunda import CamundaAPI
 
+
 @pytest.mark.change_status_team
 async def test_change_status_team_in_moderated(test_cli, mock_resp, add_team, add_real_team):
     resp = await test_cli.patch('/change-status-team/1', json={"real_team_id": 1, "status": "approved"})

@@ -91,6 +91,7 @@ async def connection():
 
     await Engine.close()
 
+
 @pytest.fixture
 async def mock_resp(test_cli):
     future = asyncio.Future()

@@ -9,6 +9,7 @@ DB_POOL_SIZE_MIN = getenv("DB_POOL_SIZE_MIN", 1)
 DB_POOL_SIZE_MAX = getenv("DB_POOL_SIZE_MAX", 6)
 
 PARSER_API_PORT = int(getenv('PARSER_API_PORT', 8000))
+PARSER_API_HOST = getenv('PARSER_API_HOST', "localhost")
 
 url = 'postgres://{0}:{1}@{2}:{3}/{4}'.format(POSTGRES_USER,
                                               POSTGRES_PASSWORD,
