@@ -1,6 +1,7 @@
 import re
-from bs4 import BeautifulSoup
 import urllib.request
+
+from bs4 import BeautifulSoup
 
 
 def team_parser(url, cls, elem):
