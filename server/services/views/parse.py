@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from marshmallow.exceptions import ValidationError
 from sanic.response import json
 
@@ -9,6 +11,6 @@ async def parse_team(request):
     try:
         data = RequestParseSchema().load(request.json)
     except ValidationError as e:
-        return json(e.messages, 422)
+        return json(e.messages, HTTPStatus.UNPROCESSABLE_ENTITY)
     teams = team_parser(data["url"], data["cls"], data["elem"])
-    return json(teams, 200)
+    return json(teams, HTTPStatus.OK)

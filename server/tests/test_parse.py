@@ -8,7 +8,9 @@ async def test_parse_team(test_cli):
         assert resp.status == 200
         assert await resp.json() == "mock_data"
 
-        resp = await test_cli.post('/parse', json={"wrong_key1": "test_data", "wrong_key2": "test_data", "wrong_key3": "test_data"})
+        resp = await test_cli.post('/parse', json={"wrong_key1": "test_data",
+                                                   "wrong_key2": "test_data",
+                                                   "wrong_key3": "test_data"})
 
         assert resp.status == 422
         assert await resp.json() == {'url': ['Missing data for required field.'],
