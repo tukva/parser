@@ -12,5 +12,5 @@ async def parse_team(request):
         data = RequestParseSchema().load(request.json)
     except ValidationError as e:
         return json(e.messages, HTTPStatus.UNPROCESSABLE_ENTITY)
-    teams = team_parser(data["url"], data["cls"], data["elem"])
+    teams = team_parser(data["url"], data["class_"], data["elem"])
     return json(teams, HTTPStatus.OK)
