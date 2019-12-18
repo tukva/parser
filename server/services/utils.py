@@ -3,6 +3,7 @@ import asyncio
 from common.rest_client.base_client_betting_data import BaseClientBettingData
 
 from services.parsers import team_parser
+from constants import PeriodForCreation
 
 
 async def parse_teams_by_link(link):
@@ -16,7 +17,7 @@ async def create_real_teams():
     real_teams, _ = await parse_teams_by_link(link)
     for real_team in real_teams:
         await client.create_real_teams(json={"name": real_team})
-    await asyncio.sleep(86400)
+    await asyncio.sleep(PeriodForCreation.REAL_TEAMS)
     await create_real_teams()
 
 
@@ -28,5 +29,5 @@ async def create_teams():
         teams, link = await future
         for team in teams:
             await client.create_team(json={"name": team, "site_name": link["site_name"], "link_id": link["link_id"]})
-    await asyncio.sleep(7200)
+    await asyncio.sleep(PeriodForCreation.TEAMS)
     await create_teams()
