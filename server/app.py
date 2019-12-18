@@ -1,10 +1,12 @@
-from sanic import Sanic
+import asyncio
 
-from config import PARSER_API_PORT, PARSER_API_HOST
-from routes import add_routes
+from services.utils import update_teams
 
-app = Sanic(name=__name__)
-add_routes(app)
 
 if __name__ == '__main__':
-    app.run(host=PARSER_API_HOST, port=PARSER_API_PORT)
+    loop = asyncio.get_event_loop()
+    loop.create_task(update_teams())
+    try:
+        loop.run_forever()
+    finally:
+        loop.close()

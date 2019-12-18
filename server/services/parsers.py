@@ -4,7 +4,7 @@ import urllib.request
 from bs4 import BeautifulSoup
 
 
-def team_parser(url, cls, elem):
+async def team_parser(url, cls, elem):
     page = urllib.request.urlopen(url)
     soup = BeautifulSoup(page, 'html.parser')
 

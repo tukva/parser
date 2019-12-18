@@ -1,6 +1,7 @@
 from unittest import mock
 from http import HTTPStatus
 
+
 async def test_parse_team(test_cli):
     with mock.patch("services.views.parse.team_parser", return_value="mock_data"):
         resp = await test_cli.post('/parse', json={"url": "test_data", "cls": "test_data", "elem": "test_data"})
