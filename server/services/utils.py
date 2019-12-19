@@ -2,12 +2,23 @@ import asyncio
 
 from common.rest_client.base_client_betting_data import BaseClientBettingData
 
-from services.parsers import team_parser
+from services import parsers
 from constants import PeriodForCreation
 
 
 async def parse_teams_by_link(link):
-    teams = await team_parser(link["link"], link["attributes"]["class"], link["attributes"]["elem"])
+    site_name = link["site_name"]
+    parser = parsers.PARSER_TYPES.get(site_name)
+
+    if not parser:
+        return [], link
+
+    attr = { 'class': link["attributes"]["class"]}
+    url = link["link"]
+    tag = link["attributes"]["elem"]
+
+    teams = await parser(url=url, tag=tag, attr=attr)
+
     return teams, link
 
 
