@@ -1,0 +1,2 @@
+beautifulsoup4==4.8.1
+git+git://github.com/AndsoiIo/betagr-common@dev#egg=betagr-common
